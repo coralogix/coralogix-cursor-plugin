@@ -1,6 +1,6 @@
 # Add a plugin
 
-Add a new plugin under `plugins/` and register it in `.cursor-plugin/marketplace.json`.
+This repository already ships **`plugins/coralogix-mcp`** and registers it in `.cursor-plugin/marketplace.json`. Use the steps below when you add another plugin under `plugins/`.
 
 ## 1. Create plugin directory
 

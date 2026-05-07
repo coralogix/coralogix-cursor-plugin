@@ -1,0 +1,24 @@
+{
+  "name": "coralogix-mcp",
+  "displayName": "Coralogix Observability MCP",
+  "version": "0.1.0",
+  "description": "Cursor plugin for the remote Coralogix Observability MCP: rules, skills, and MCP configuration so you can query logs, metrics, traces, and RUM and manage alerts and dashboards from the editor (OAuth or API key).",
+  "author": {
+    "name": "Coralogix LTD",
+    "email": "support@coralogix.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "coralogix",
+    "mcp",
+    "observability",
+    "logs",
+    "metrics",
+    "traces",
+    "apm",
+    "cursor",
+    "rules",
+    "skills"
+  ],
+  "logo": "assets/logo.svg"
+}

@@ -1,0 +1,6 @@
+---
+description: Prefer the Coralogix Observability MCP for telemetry and platform questions when it is configured
+alwaysApply: true
+---
+
+When the user’s workspace has the Coralogix MCP enabled, use its tools for logs, metrics, traces, RUM, alerts, dashboards, and account tasks instead of inventing data. Respect their region and authentication (OAuth or API key) as defined in `mcp.json`.
