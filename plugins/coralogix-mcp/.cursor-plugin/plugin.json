@@ -2,12 +2,12 @@
   "name": "coralogix-mcp",
   "displayName": "Coralogix Observability MCP",
   "version": "0.1.0",
-  "description": "Cursor plugin for the remote Coralogix Observability MCP: rules, skills, and MCP configuration so you can query logs, metrics, traces, and RUM and manage alerts and dashboards from the editor (OAuth or API key).",
+  "description": "Connects Cursor to the Coralogix Observability MCP Server, letting your AI agent query logs, metrics, traces, and RUM, manage alerts and dashboards — all without leaving the editor.",
   "author": {
     "name": "Coralogix LTD",
     "email": "support@coralogix.com"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "keywords": [
     "coralogix",
     "mcp",
@@ -17,8 +17,7 @@
     "traces",
     "apm",
     "cursor",
-    "rules",
-    "skills"
+    "telemetry"
   ],
   "logo": "assets/logo.svg"
 }

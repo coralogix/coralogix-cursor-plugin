@@ -10,6 +10,7 @@ Full setup, authentication options, and regional endpoints are documented here:
 
 - A [Coralogix](https://coralogix.com/) account and the correct **region / API endpoint** for your team ([account domain](https://coralogix.com/docs/user-guides/account-management/account-settings/coralogix-domain/))
 - [Cursor](https://cursor.com/) with MCP enabled
+- The `CORALOGIX_DOMAIN` environment variable set to your account domain (see [Configuring your domain](#configuring-your-domain))
 
 ## How connection works
 
@@ -22,20 +23,38 @@ You typically authenticate in one of two ways:
 | **OAuth (recommended)** | Browser login to Coralogix and authorize the MCP client. Cursor uses OAuth 2.1 / OIDC ([details](https://coralogix.com/docs/user-guides/mcp-server/oauth/)). |
 | **API key** | Personal [Coralogix API key](https://coralogix.com/docs/user-guides/account-management/api-keys/api-keys/) sent as `Authorization: Bearer …`. Permissions follow that key ([permissions](https://coralogix.com/docs/user-guides/mcp-server/permissions/)). |
 
-Adjust the MCP **URL** so it matches your **Coralogix domain** (US1, US2, EU1, EU2, AP1, …). The [Setup](https://coralogix.com/docs/user-guides/mcp-server/setup/) guide lists regions and shows how to substitute the correct host. In general the management API—and MCP—use a hostname of the form `api.<your-domain>`, for example:
+The MCP URL is constructed from your Coralogix domain using the pattern `https://api.<your-domain>/mgmt/api/v1/mcp`. Set `CORALOGIX_DOMAIN` to your domain and the plugin resolves the correct endpoint automatically.
 
-`https://api.eu2.coralogix.com/mgmt/api/v1/mcp`
+## Configuring your domain
 
-The plugin ships a default **EU2** endpoint in its bundled MCP configuration; change it to match your account ([domain settings](https://coralogix.com/docs/user-guides/account-management/account-settings/coralogix-domain/)).
+The plugin uses the `CORALOGIX_DOMAIN` environment variable to build the MCP endpoint URL. Set it to the domain shown on your [Coralogix account settings](https://coralogix.com/docs/user-guides/account-management/account-settings/coralogix-domain/) page:
+
+| Domain | Region | Cloud |
+|--------|--------|-------|
+| `eu1.coralogix.com` | EU1 | AWS eu-west-1 (Ireland) |
+| `eu2.coralogix.com` | EU2 | AWS eu-north-1 (Stockholm) |
+| `us1.coralogix.com` | US1 | AWS us-east-2 (Ohio) |
+| `us2.coralogix.com` | US2 | AWS us-west-2 (Oregon) |
+| `us3.coralogix.com` | US3 | GCP us-central1 (Iowa) |
+| `ap1.coralogix.com` | AP1 | AWS ap-south-1 (Mumbai) |
+| `ap2.coralogix.com` | AP2 | AWS ap-southeast-1 (Singapore) |
+| `ap3.coralogix.com` | AP3 | AWS ap-southeast-3 (Jakarta) |
+
+Add the variable to your shell profile (e.g. `~/.zshrc` or `~/.bashrc`) and restart Cursor:
+
+```bash
+export CORALOGIX_DOMAIN=eu2.coralogix.com
+```
+
+Cursor interpolates `${env:CORALOGIX_DOMAIN}` in the MCP URL at startup, so the server connects to `https://api.<CORALOGIX_DOMAIN>/mgmt/api/v1/mcp`.
 
 ## Getting started
 
-1. Install this plugin from the **Cursor Marketplace**.
-2. **Register the MCP server** in Cursor using the URL for your region. The docs show adding a `coralogix-server` entry under `mcpServers` in `.cursor/mcp.json` — follow **[Setup — Connecting with Cursor](https://coralogix.com/docs/user-guides/mcp-server/setup/)** for the exact JSON (OAuth vs API key).
-3. Open **MCP settings** in Cursor and **enable** the Coralogix server.
-4. For OAuth, complete login in the browser when prompted.
+1. Set `CORALOGIX_DOMAIN` for your region (see [Configuring your domain](#configuring-your-domain)).
+2. Install this plugin from the **Cursor Marketplace** — the MCP server is registered automatically.
+3. For OAuth, complete login in the browser when prompted.
 
-If you already registered Coralogix MCP manually, avoid duplicating the same server name or URL so Cursor does not connect twice.
+If you already registered the Coralogix MCP server manually, remove or rename that entry first to avoid Cursor connecting to it twice.
 
 ## Using the MCP in Cursor
 
@@ -50,7 +69,7 @@ When did this issue start?
 ```
 
 ```
-List dashboards that mention payments.
+Which alerts fired in the last hour?
 ```
 
 After investigating an incident, you can continue with follow-ups such as summarizing impact or suggesting code fixes—the agent uses Coralogix tools when they are available.
@@ -61,7 +80,7 @@ If outbound traffic must go through a proxy, set standard `HTTP_PROXY` / `HTTPS_
 
 ## What’s included
 
-The plugin provides **default MCP registration** for Coralogix plus **rules and skills** so the agent prefers Coralogix MCP tools for observability questions instead of guessing. Adjust the MCP URL if your region differs from the default.
+The plugin provides **default MCP registration** for Coralogix plus **rules and skills** so the agent prefers Coralogix MCP tools for observability questions instead of guessing.
 
 ## Support and legal
 
