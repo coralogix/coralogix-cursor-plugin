@@ -82,6 +82,20 @@ If outbound traffic must go through a proxy, set standard `HTTP_PROXY` / `HTTPS_
 
 The plugin provides **default MCP registration** for Coralogix plus **rules and skills** so the agent prefers Coralogix MCP tools for observability questions instead of guessing.
 
+## Local development
+
+To load the plugin directly into Cursor without publishing it, run:
+
+```bash
+make dev [DOMAIN=<your-domain>]
+```
+
+This creates `~/.cursor/plugins/local/coralogix-mcp` pointing to `plugins/coralogix-mcp/` and registers `CORALOGIX_DOMAIN` with `launchctl setenv` so Cursor's GUI process picks it up. Then reload Cursor (`Cmd+Shift+P` → **Developer: Reload Window**) and check **Settings → Features → Model Context Protocol** — `coralogix-server` should appear with the resolved URL.
+
+To remove the local symlink: `make unlink`. To validate the plugin manifest: `make validate`.
+
+> **macOS note:** Shell profile exports (`~/.zshrc`) are not visible to apps launched from the Dock. `make dev` uses `launchctl setenv` to inject the variable into the GUI environment — this persists until you log out or explicitly unset it with `launchctl unsetenv CORALOGIX_DOMAIN`.
+
 ## Support and legal
 
 - **Coralogix MCP:** [Setup](https://coralogix.com/docs/user-guides/mcp-server/setup/), [OAuth](https://coralogix.com/docs/user-guides/mcp-server/oauth/), [Permissions](https://coralogix.com/docs/user-guides/mcp-server/permissions/)
