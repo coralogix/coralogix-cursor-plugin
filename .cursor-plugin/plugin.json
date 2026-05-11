@@ -1,0 +1,25 @@
+{
+  "name": "coralogix-mcp",
+  "version": "0.1.0",
+  "description": "Connects Cursor to the Coralogix Observability MCP Server, letting your AI agent query logs, metrics, traces, and RUM, manage alerts and dashboards — all without leaving the editor.",
+  "author": {
+    "name": "Coralogix LTD",
+    "email": "support@coralogix.com"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "coralogix",
+    "mcp",
+    "observability",
+    "logs",
+    "metrics",
+    "traces",
+    "apm",
+    "cursor",
+    "telemetry"
+  ],
+  "logo": "plugins/coralogix-mcp/assets/logo.svg",
+  "mcpServers": "./plugins/coralogix-mcp/mcp.json",
+  "skills": "./plugins/coralogix-mcp/skills",
+  "rules": "./plugins/coralogix-mcp/rules"
+}
