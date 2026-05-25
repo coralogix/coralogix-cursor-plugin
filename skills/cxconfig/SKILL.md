@@ -46,40 +46,30 @@ to offer:
 
 - **Change the region/domain.** Show the region table from
   `mcp-settings.md`.
-- **Add an API key.** Sets a `Bearer` Authorization header (switches off
-  OAuth-only mode). Treat any pasted key as sensitive — do not echo it
-  back to the user once stored.
-- **Remove the API key.** Deletes the `headers` block (reverts to OAuth).
+- **Switch to API key auth.** Adds a `Bearer` Authorization header
+  (turns off the OAuth flow). Follow the credentials rule in
+  `mcp-settings.md` — accept the pasted key silently and never echo it
+  back.
+- **Switch to OAuth auth.** Removes the `headers` block.
+
+The user may also have a current API key in place and want to rotate
+it — treat that as "switch to API key" with a new value.
 
 ### 3. Apply the change
 
-Edit `<plugin-root>/mcp.json` accordingly. Only touch the
-`coralogix-server` entry; do not modify other servers.
+Edit `<plugin-root>/mcp.json` using the shapes and rules in
+`mcp-settings.md`:
 
-Region change — follow the editing rule in `mcp-settings.md`. Replace
-only the default value between `:-` and `}`:
+- **Region change** — follow the editing rule. Replace only the default
+  value between `:-` and `}`, e.g.
+  `${CORALOGIX_DOMAIN:-eu2.coralogix.com}  →  ${CORALOGIX_DOMAIN:-us1.coralogix.com}`.
+- **Switch to API key** — write the API key shape from the
+  "Registration file shapes" section, keeping the existing domain and
+  substituting the pasted key for `<CORALOGIX_API_KEY>`.
+- **Switch to OAuth** — write the OAuth shape (no `headers` block),
+  keeping the existing domain.
 
-```
-${CORALOGIX_DOMAIN:-eu2.coralogix.com}  →  ${CORALOGIX_DOMAIN:-us1.coralogix.com}
-```
-
-Add API key — final shape:
-
-```json
-{
-  "mcpServers": {
-    "coralogix-server": {
-      "url": "https://api.${CORALOGIX_DOMAIN:-eu2.coralogix.com}/mgmt/api/v1/mcp",
-      "headers": {
-        "Authorization": "Bearer <CORALOGIX_API_KEY>"
-      }
-    }
-  }
-}
-```
-
-Remove API key — delete the entire `headers` block from the
-`coralogix-server` entry.
+Only touch the `coralogix-server` entry; do not modify other servers.
 
 ### 4. Tell the user the next step
 
@@ -90,4 +80,6 @@ Tell the user the configuration has been updated and instruct them to:
      Windows/Linux — show the correct shortcut for the current OS)
    - Running the "Developer: Reload Window" command
 2. If they switched to OAuth, complete the browser login flow when
-   prompted.
+   prompted. If they switched to or rotated an API key, no further
+   action is needed; calls that fail with an authorization error mean
+   the key is wrong — re-run `/cxconfig` to update it.

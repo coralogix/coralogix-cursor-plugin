@@ -82,27 +82,66 @@ Follow these steps in order:
    Coralogix domain. Ask for clarification if ambiguous.
 
    Follow the "Stay on script" rule in `mcp-settings.md`. In particular,
-   do not preview the follow-up instructions from step 3 below (reload,
+   do not preview the follow-up instructions from step 5 below (reload,
    re-authenticate, etc.) — that step emits them verbatim at the right
    moment.
 
-2. **Apply the change.** In the registration file, replace the exact
-   string `not-setup` with the resolved Coralogix domain. Follow the
-   editing rule in `mcp-settings.md` — only change the default value.
+2. **Apply the region immediately.** As soon as the region is resolved
+   (before asking anything else), edit the registration file's `url`
+   field so the URL becomes valid.
 
-   Before:
+   The shipped file contains exactly one occurrence of `not-setup`, on
+   the `url` line:
 
    ```
-   ${CORALOGIX_DOMAIN:-not-setup}
+   "url": "https://api.${CORALOGIX_DOMAIN:-not-setup}/mgmt/api/v1/mcp"
    ```
+
+   Replace **only** the 9 characters `not-setup` (the default value
+   between `:-` and the closing `}`) with the resolved Coralogix domain.
+   Follow the editing rule in `mcp-settings.md` — the `${CORALOGIX_DOMAIN:-`
+   prefix, the closing `}`, the surrounding `"url": "https://api.`, and
+   the trailing `/mgmt/api/v1/mcp"` must remain byte-for-byte identical.
 
    After (example for eu2):
 
    ```
-   ${CORALOGIX_DOMAIN:-eu2.coralogix.com}
+   "url": "https://api.${CORALOGIX_DOMAIN:-eu2.coralogix.com}/mgmt/api/v1/mcp"
    ```
 
-3. **Tell the user** that the Coralogix MCP server has been initialized
+   At runtime this expands to `https://api.eu2.coralogix.com/mgmt/api/v1/mcp`
+   (a valid URL), or to whatever `CORALOGIX_DOMAIN` is set to if the
+   user exports that environment variable.
+
+   Verify, before moving on: the file no longer contains `not-setup`,
+   still contains `${CORALOGIX_DOMAIN:-`, and the substring between
+   `:-` and `}` is the resolved domain. The file is now in the OAuth
+   shape from the "Registration file shapes" section in
+   `mcp-settings.md`.
+
+   Do not announce this write to the user; the user-facing message comes
+   in step 5.
+
+3. **Ask for the authentication method.** Using a single method
+   (interactive picker or short list — same constraint as the region
+   step), offer the two options from the "Authentication methods"
+   section in `mcp-settings.md`:
+
+   - **OAuth** (default, recommended) — browser login after restart.
+   - **API key** — paste a Coralogix API key now.
+
+   If the user picks OAuth, or is unsure, default to OAuth and skip
+   step 4 — the file is already in the OAuth shape from step 2.
+
+4. **If API key was chosen, add the headers block.** Ask the user to
+   paste the key. Follow the credentials rule from "Stay on script" —
+   accept the key silently, do not echo it back, and do not confirm or
+   summarize its value at any point. Then edit the registration file to
+   add the `headers` block from the API key shape in `mcp-settings.md`,
+   substituting the pasted key for `<CORALOGIX_API_KEY>`. Keep the
+   domain set in step 2.
+
+5. **Tell the user** that the Coralogix MCP server has been initialized
    and to follow these steps:
 
    1. Restart Cursor by:
@@ -110,8 +149,11 @@ Follow these steps in order:
         Windows/Linux — show the correct shortcut for the current
         operating system)
       - Running the "Developer: Reload Window" command
-   2. After the restart, it may be necessary to authenticate the
-      `coralogix-server` MCP server by:
-      - Opening the command palette and running the
-        "Cursor Settings: Tools & MCP" command
-      - Authenticating `coralogix-server` (OAuth browser flow)
+   2. After the restart, depending on the chosen authentication method:
+      - **OAuth** — it may be necessary to authenticate the
+        `coralogix-server` MCP server by opening the command palette,
+        running the "Cursor Settings: Tools & MCP" command, and
+        authenticating `coralogix-server` (OAuth browser flow).
+      - **API key** — no further action is needed; the server should be
+        ready to use. If calls fail with an authorization error, run
+        `/cxconfig` to update the key.
