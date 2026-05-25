@@ -17,9 +17,5 @@
     "apm",
     "cursor",
     "telemetry"
-  ],
-  "logo": "plugins/coralogix-mcp/assets/logo.svg",
-  "mcpServers": "./plugins/coralogix-mcp/mcp.json",
-  "skills": "./plugins/coralogix-mcp/skills",
-  "rules": "./plugins/coralogix-mcp/rules"
+  ]
 }
