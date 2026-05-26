@@ -43,6 +43,8 @@ The MCP URL follows the pattern `https://api.<your-domain>/mgmt/api/v1/mcp`. The
 | `ap1.coralogix.com` | AP1 | AWS ap-south-1 (Mumbai) |
 | `ap2.coralogix.com` | AP2 | AWS ap-southeast-1 (Singapore) |
 | `ap3.coralogix.com` | AP3 | AWS ap-southeast-3 (Jakarta) |
+| `proofpoint.coralogix.com` | Proofpoint | Dedicated tenant |
+| `factset.coralogix.com` | FactSet | Dedicated tenant |
 
 Until you run `/cxsetup`, the domain in `mcp.json` is the placeholder `not-setup` and the server will not connect. If you already registered the Coralogix MCP server manually in `~/.cursor/mcp.json`, remove or rename that entry first to avoid connecting twice.
 

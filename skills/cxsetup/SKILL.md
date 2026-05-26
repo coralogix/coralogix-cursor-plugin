@@ -17,74 +17,65 @@ metadata:
 
 ## Coralogix MCP Server
 
-The server id is `coralogix-server`. Use this server exclusively, even if
-other Coralogix servers exist in the user's environment.
+The id of the Coralogix MCP Server referenced on this document is `coralogix-server`. You MUST use this specific server even if there are other Coralogix servers.
 
-If `coralogix-server` is not set up, do **NOT** fall back to the Coralogix
-web UI, CLI, or REST APIs — set up the MCP server first. Only use other
-methods if the user explicitly asks for them.
+## Accessing Coralogix using other methods
+
+If the `coralogix-server` MCP server is not setup, do **NOT** suggest the user to access Coralogix information using different approaches like the Coralogix web UI, CLI, or REST APIs. **Instead** first setup the MCP server because it provides a better agentic experience. Only consider other methods if the user **explicitly** guides you in that direction.
 
 ## Shared reference
 
-Read [references/mcp-settings.md](references/mcp-settings.md) before
-proceeding. It contains the `coralogix-server-state` check, registration
-file location, editing rules, region-to-domain mapping, and auth shapes.
+Read [references/mcp-settings.md](references/mcp-settings.md) before proceeding. It contains the `coralogix-server-state` check, registration file location, editing rules, and region-to-domain mapping used by the procedure below.
 
 ## Setup procedure
 
 Check the `coralogix-server-state` (see `mcp-settings.md`):
 
 - **working** — continue with the user's request without mentioning this check.
-- **not-working** — tell the user the server is set up but not working,
-  instruct them to run `/cxconfig`, and stop.
-- **not-setup** — run the steps below. Do not call any other MCP tools and
-  do not gather data another way until setup completes.
+- **not-working** — without any preamble, tell the user the server is setup but not working, instruct them to run `/cxconfig`, and stop.
+- **not-setup** — the server needs first-time setup. Do **not** attempt to gather data using a different approach. Do **not** attempt any further MCP calls: they will fail until setup is complete.
 
-When describing state to the user, use plain language. Do not reveal
-file contents, paths, or variable values.
+When communicating with the user below, describe the server state in plain language. Do not reveal what was checked, what was found, or any implementation details like file contents or variable values.
 
-### Steps
+#### What Coralogix provides once set up
 
-You MUST complete each step in order. Do not skip steps 1 or 3 — even if
-you think you can guess the answer, you must ask the user.
+Coralogix is a full-stack observability platform. After this skill completes setup, the agent gains MCP tools to query production data directly — without the user needing to leave the AI client or open a browser. Examples of what becomes possible:
 
-1. **Ask for the region.** Tell the user the Coralogix MCP server needs
-   first-time setup, then ask which region/domain to use. Present the
-   regions from the table in `mcp-settings.md` using a single method
-   (interactive picker preferred). Resolve region codes, full domains,
-   or URLs to a Coralogix domain per the mapping rules. Ask for
-   clarification if ambiguous.
+- Search and filter application logs
+- Query metrics and time-series data
+- Inspect distributed traces for latency or errors
+- Browse RUM sessions and front-end performance
+- List dashboards, alerts, and monitors
+- Investigate incidents and on-call alarms
 
-2. **Apply the region.** Edit the registration file's `url` field per
-   the editing rule in `mcp-settings.md`: replace only the 9 characters
-   `not-setup` between `:-` and `}` with the resolved domain. The file
-   is now in the OAuth shape. Do not announce this write.
+These MCP tools are the primary way to access Coralogix data from within the AI client. Until setup is complete, **none of these tools exist**. The agent cannot see them, list them, or call them.
 
-3. **Ask for the authentication method.** Using a single method (same
-   constraint as step 1), offer:
-   - **OAuth** (default, recommended) — browser login, no key stored.
-   - **API key** — paste a Coralogix API key now.
+#### Steps
 
-   If the user picks OAuth or is unsure, default to OAuth and skip step 4.
+Follow these steps in order:
 
-4. **If API key was chosen, write the key.** Ask the user to paste it.
-   Per the credentials rule in `mcp-settings.md`, accept it silently —
-   never echo, confirm, or summarize the value. Add the `headers` block
-   from the API key shape in `mcp-settings.md`, substituting the pasted
-   key for `<CORALOGIX_API_KEY>`. Keep the domain from step 2.
+1. **Ask for the region.** Tell the user the Coralogix MCP server needs to be set up, present the available regions and their domains from `mcp-settings.md` (using a single method — see that file), and ask which region/domain to use. The user may respond with a Coralogix domain directly, a region code, a URL, or something else — use the mapping rules in `mcp-settings.md` to resolve the answer to a Coralogix domain. Ask for clarification if ambiguous.
 
-5. **If API key was chosen, confirm and stop.** Tell the user the
-   Coralogix MCP server is configured and ready to use, and that if
-   calls later fail with an authorization error they should run
-   `/cxconfig` to update the key. Do **not** ask them to restart,
-   reload, or quit Cursor. Skip step 6.
+   Follow the "Stay on script" rule in `mcp-settings.md`. In particular, do not preview the follow-up instructions from step 3 below (reload, re-authenticate, etc.) — that step emits them verbatim at the right moment.
 
-6. **If OAuth was chosen, trigger the Authorize button.** Call the
-   `mcp_auth` tool on the `coralogix-server` MCP server with an empty
-   arguments object `{}`. This surfaces Cursor's **Authorize** button
-   for the user and opens the browser login flow. Then tell the user
-   the Coralogix MCP server is configured and to click the
-   **Authorize** button to complete the browser login. Do **not** ask
-   them to restart, reload, or quit Cursor, and do not direct them to
-   Cursor Settings — the button appears inline from the `mcp_auth`
-   call.
+2. **Apply the change.** In the registration file, replace the exact string `not-setup` with the resolved Coralogix domain. Follow the editing rule in `mcp-settings.md` — only change the default value.
+
+   Before:
+
+   ```
+   ${CORALOGIX_DOMAIN:-not-setup}
+   ```
+
+   After (example for eu2):
+
+   ```
+   ${CORALOGIX_DOMAIN:-eu2.coralogix.com}
+   ```
+
+3. **Tell the user** that the Coralogix MCP server has been initialized and to follow these steps:
+
+   1. Reload the `coralogix-server` MCP server by:
+      - Opening the command palette (⌘⇧P on Mac or Ctrl+Shift+P on Windows/Linux — show the correct shortcut for the current operating system)
+      - Running the "Cursor Settings: Tools & MCP" command
+      - Toggling the `coralogix-server` MCP server off and then back on
+   2. If prompted, complete the OAuth login in the browser to authenticate the `coralogix-server` MCP server.

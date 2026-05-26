@@ -15,10 +15,9 @@ any step:
 - The default values for the environment variables like `not-setup` — or
   related terms such as "domain placeholder".
 - Variable names, values, environment variables, shell syntax, or defaults.
-- The literal value of any API key, token, client secret, or other
-  credential the user provides — never echo it back, summarize it, log
-  it, or include it in any message. Write it straight into the
-  registration file.
+- API keys, tokens, client secrets, or credentials of any kind — the
+  Coralogix MCP server uses OAuth by default, and API keys are for
+  advanced usage outside this skill.
 
 Beyond that, emit only what the current step instructs. Do not add setup
 tips, follow-ups, or "helpful" notes from your general knowledge of the
@@ -113,78 +112,23 @@ invalid hostname). It exists only before first-time setup and is replaced
 by `/cxsetup` with a real Coralogix domain. Once replaced, it never
 returns to `not-setup`.
 
-## Authentication methods
-
-The `coralogix-server` MCP server supports two authentication methods.
-Both skills (`/cxsetup` and `/cxconfig`) use the shapes below; never
-hand-roll a different structure.
-
-- **OAuth** (default, recommended) — browser login on first connection.
-  The MCP client handles the flow; no credentials are stored in the
-  registration file.
-- **API key (Bearer)** — a personal Coralogix API key sent in the
-  `Authorization` header. Useful when OAuth is not practical (headless
-  environments, shared machines, scripted setups). Permissions follow
-  the key.
-
-### Handling an API key value
-
-When the user provides an API key:
-
-- Treat the value as sensitive. Follow the credentials rule in
-  "Stay on script" above — write it straight into the registration file
-  and never echo, summarize, or confirm the value back.
-- Do not validate the key. The MCP server will reject it on the first
-  call if it is wrong; that is the user's signal to re-run `/cxconfig`.
-
-### Registration file shapes
-
-OAuth (no `headers` block):
-
-```json
-{
-  "mcpServers": {
-    "coralogix-server": {
-      "url": "https://api.${CORALOGIX_DOMAIN:-<domain>}/mgmt/api/v1/mcp"
-    }
-  }
-}
-```
-
-API key (with `headers` block):
-
-```json
-{
-  "mcpServers": {
-    "coralogix-server": {
-      "url": "https://api.${CORALOGIX_DOMAIN:-<domain>}/mgmt/api/v1/mcp",
-      "headers": {
-        "Authorization": "Bearer <CORALOGIX_API_KEY>"
-      }
-    }
-  }
-}
-```
-
-To switch from OAuth to API key, add the `headers` block. To switch
-back, delete the entire `headers` block. Only ever modify the
-`coralogix-server` entry — leave other MCP servers untouched.
-
 ## Region-to-domain mapping
 
 The following table shows the Coralogix region codes and their respective
 domains:
 
-| Region | Domain               | Cloud                                |
-| ------ | -------------------- | ------------------------------------ |
-| eu1    | eu1.coralogix.com    | AWS eu-west-1 (Ireland)              |
-| eu2    | eu2.coralogix.com    | AWS eu-north-1 (Stockholm)           |
-| us1    | us1.coralogix.com    | AWS us-east-2 (Ohio)                 |
-| us2    | us2.coralogix.com    | AWS us-west-2 (Oregon)               |
-| us3    | us3.coralogix.com    | GCP us-central1 (Iowa)               |
-| ap1    | ap1.coralogix.com    | AWS ap-south-1 (Mumbai)              |
-| ap2    | ap2.coralogix.com    | AWS ap-southeast-1 (Singapore)       |
-| ap3    | ap3.coralogix.com    | AWS ap-southeast-3 (Jakarta)         |
+| Region     | Domain                   | Cloud                                |
+| ---------- | ------------------------ | ------------------------------------ |
+| eu1        | eu1.coralogix.com        | AWS eu-west-1 (Ireland)              |
+| eu2        | eu2.coralogix.com        | AWS eu-north-1 (Stockholm)           |
+| us1        | us1.coralogix.com        | AWS us-east-2 (Ohio)                 |
+| us2        | us2.coralogix.com        | AWS us-west-2 (Oregon)               |
+| us3        | us3.coralogix.com        | GCP us-central1 (Iowa)               |
+| ap1        | ap1.coralogix.com        | AWS ap-south-1 (Mumbai)              |
+| ap2        | ap2.coralogix.com        | AWS ap-southeast-1 (Singapore)       |
+| ap3        | ap3.coralogix.com        | AWS ap-southeast-3 (Jakarta)         |
+| proofpoint | proofpoint.coralogix.com | Dedicated tenant                     |
+| factset    | factset.coralogix.com    | Dedicated tenant                     |
 
 Present the region options to the user using a single method — for
 example, don't combine a text list with an interactive picker. Choose

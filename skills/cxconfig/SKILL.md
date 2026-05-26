@@ -50,10 +50,11 @@ to offer:
   (turns off the OAuth flow). Follow the credentials rule in
   `mcp-settings.md` — accept the pasted key silently and never echo it
   back.
+- **Replace the API key.** Only offer this when the current config
+  already has a `headers` block. Replaces the existing `Bearer` value
+  with a newly pasted key. Follow the same credentials rule — accept
+  the pasted key silently and never echo it back.
 - **Switch to OAuth auth.** Removes the `headers` block.
-
-The user may also have a current API key in place and want to rotate
-it — treat that as "switch to API key" with a new value.
 
 ### 3. Apply the change
 
@@ -66,6 +67,8 @@ Edit `<plugin-root>/mcp.json` using the shapes and rules in
 - **Switch to API key** — write the API key shape from the
   "Registration file shapes" section, keeping the existing domain and
   substituting the pasted key for `<CORALOGIX_API_KEY>`.
+- **Replace API key** — keep the existing API key shape and domain;
+  only substitute the pasted key for the current `Bearer` value.
 - **Switch to OAuth** — write the OAuth shape (no `headers` block),
   keeping the existing domain.
 
@@ -75,11 +78,60 @@ Only touch the `coralogix-server` entry; do not modify other servers.
 
 Tell the user the configuration has been updated and instruct them to:
 
-1. Restart Cursor by:
+1. Reload the `coralogix-server` MCP server by:
    - Opening the command palette (`⌘⇧P` on macOS or `Ctrl+Shift+P` on
      Windows/Linux — show the correct shortcut for the current OS)
-   - Running the "Developer: Reload Window" command
+   - Running the "Cursor Settings: Tools & MCP" command
+   - Toggling the `coralogix-server` MCP server off and then back on
 2. If they switched to OAuth, complete the browser login flow when
    prompted. If they switched to or rotated an API key, no further
    action is needed; calls that fail with an authorization error mean
    the key is wrong — re-run `/cxconfig` to update it.
+
+## Registration file shapes
+
+`coralogix-server` supports two authentication shapes in `mcp.json`.
+When applying step 3, write the file using one of the two shapes below.
+Keep the `${CORALOGIX_DOMAIN:-<domain>}` template intact per the
+editing rule in `mcp-settings.md`, and only ever modify the
+`coralogix-server` entry.
+
+### OAuth (default)
+
+No `headers` block. Cursor handles the browser login flow on first
+connection; no credentials are stored in the file.
+
+```json
+{
+  "mcpServers": {
+    "coralogix-server": {
+      "url": "https://api.${CORALOGIX_DOMAIN:-<domain>}/mgmt/api/v1/mcp"
+    }
+  }
+}
+```
+
+### API key (Bearer)
+
+`headers` block with an `Authorization: Bearer …` value. Substitute the
+pasted key for `<CORALOGIX_API_KEY>` — write it straight into the file
+and never echo, summarize, or confirm the value back. Do **not** use
+`${CORALOGIX_API_KEY:-}` with an empty default; that silently sends an
+empty bearer when the env var is unset.
+
+```json
+{
+  "mcpServers": {
+    "coralogix-server": {
+      "url": "https://api.${CORALOGIX_DOMAIN:-<domain>}/mgmt/api/v1/mcp",
+      "headers": {
+        "Authorization": "Bearer <CORALOGIX_API_KEY>"
+      }
+    }
+  }
+}
+```
+
+To switch from OAuth to API key, add the `headers` block. To switch
+back, delete the entire `headers` block. The domain stays unchanged
+unless the user is also changing region.
