@@ -17,7 +17,6 @@ dev:
 	       "$(PLUGIN_SRC)/mcp.json" \
 	       "$(PLUGIN_SRC)/rules" \
 	       "$(PLUGIN_SRC)/skills" \
-	       "$(PLUGIN_SRC)/assets" \
 	       "$(PLUGIN_SRC)/README.md" \
 	       "$(PLUGIN_DEST)/"
 	@echo "Installed plugin at $(PLUGIN_DEST)"
