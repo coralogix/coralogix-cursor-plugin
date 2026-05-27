@@ -1,33 +1,31 @@
-.PHONY: dev unlink validate
+.PHONY: dev unlink
 
 PLUGIN_LOCAL_DIR := $(HOME)/.cursor/plugins/local
-PLUGIN_LINK_NAME := coralogix-mcp
-PLUGIN_SRC       := $(abspath plugins/coralogix-mcp)
-
-# Default domain for local development. Override with: make dev DOMAIN=us1.coralogix.com
-DOMAIN ?= eu2.coralogix.com
+PLUGIN_NAME      := coralogix-mcp
+PLUGIN_SRC       := $(abspath .)
+PLUGIN_DEST      := $(PLUGIN_LOCAL_DIR)/$(PLUGIN_NAME)
 
 # ── Local development ──────────────────────────────────────────────────────────
 
-## Set up the plugin for local testing and open Cursor.
-## Usage: make dev [DOMAIN=<your-domain>]
+## Copy the plugin into Cursor's local plugins folder for testing.
+## After running, reload Cursor and run /cx-setup in chat to pick your region.
 dev:
 	@mkdir -p "$(PLUGIN_LOCAL_DIR)"
-	@ln -sfn "$(PLUGIN_SRC)" "$(PLUGIN_LOCAL_DIR)/$(PLUGIN_LINK_NAME)"
-	@echo "Symlink: $(PLUGIN_LOCAL_DIR)/$(PLUGIN_LINK_NAME) -> $(PLUGIN_SRC)"
-	@launchctl setenv CORALOGIX_DOMAIN "$(DOMAIN)"
-	@echo "Set CORALOGIX_DOMAIN=$(DOMAIN) in the macOS launch environment"
+	@rm -rf "$(PLUGIN_DEST)"
+	@mkdir -p "$(PLUGIN_DEST)"
+	@cp -R "$(PLUGIN_SRC)/.cursor-plugin" \
+	       "$(PLUGIN_SRC)/mcp.json" \
+	       "$(PLUGIN_SRC)/rules" \
+	       "$(PLUGIN_SRC)/skills" \
+	       "$(PLUGIN_SRC)/README.md" \
+	       "$(PLUGIN_DEST)/"
+	@echo "Installed plugin at $(PLUGIN_DEST)"
 	@echo ""
-	@echo "Next: reload Cursor (Cmd+Shift+P -> Developer: Reload Window)"
-	@echo "      then check Settings > Features > Model Context Protocol"
+	@echo "Next:"
+	@echo "  1. Reload Cursor (Cmd+Shift+P -> Developer: Reload Window)"
+	@echo "  2. In chat, run: /cx-setup    (picks your Coralogix region)"
 
-## Remove the local plugin symlink.
+## Remove the local plugin install.
 unlink:
-	@rm -f "$(PLUGIN_LOCAL_DIR)/$(PLUGIN_LINK_NAME)"
-	@echo "Removed $(PLUGIN_LOCAL_DIR)/$(PLUGIN_LINK_NAME)"
-
-# ── Validation ─────────────────────────────────────────────────────────────────
-
-## Validate plugin manifest and component frontmatter.
-validate:
-	node scripts/validate-template.mjs
+	@rm -rf "$(PLUGIN_DEST)"
+	@echo "Removed $(PLUGIN_DEST)"

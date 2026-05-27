@@ -18,8 +18,29 @@
     "cursor",
     "telemetry"
   ],
-  "logo": "plugins/coralogix-mcp/assets/logo.svg",
-  "mcpServers": "./plugins/coralogix-mcp/mcp.json",
-  "skills": "./plugins/coralogix-mcp/skills",
-  "rules": "./plugins/coralogix-mcp/rules"
+  "variables": {
+    "type": "object",
+    "properties": {
+      "CORALOGIX_DOMAIN": {
+        "type": "string",
+        "title": "Coralogix Domain",
+        "description": "Select the Coralogix domain for your tenant based on the [Coralogix domain guide](https://coralogix.com/docs/user-guides/account-management/account-settings/coralogix-domain/)",
+        "enum": [
+          "eu1.coralogix.com",
+          "eu2.coralogix.com",
+          "us1.coralogix.com",
+          "us2.coralogix.com",
+          "us3.coralogix.com",
+          "ap1.coralogix.com",
+          "ap2.coralogix.com",
+          "ap3.coralogix.com",
+          "proofpoint.coralogix.com",
+          "factset.coralogix.com"
+        ]
+      }
+    },
+    "required": [
+      "CORALOGIX_DOMAIN"
+    ]
+  }
 }

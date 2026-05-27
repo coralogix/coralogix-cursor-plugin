@@ -6,11 +6,19 @@ Full setup, authentication options, and regional endpoints are documented here:
 
 **[Coralogix MCP server — Setup](https://coralogix.com/docs/user-guides/mcp-server/setup/)**
 
+## Quick start
+
+1. Install the plugin from the [Cursor Marketplace](https://cursor.com/marketplace) (or copy this repo to `~/.cursor/plugins/local/coralogix-mcp/` for local testing — see [Local development](#local-development)).
+2. In Cursor chat, run **`/cx-setup`**. It will ask which Coralogix region you use and which authentication method to use (**OAuth** — the default — or **API key**), then configure the MCP server for you.
+3. Fully quit and reopen Cursor.
+4. For OAuth, complete the browser login when prompted.
+
+To change the region, switch between OAuth and API key, or rotate an API key later, run **`/cx-config`**.
+
 ## What you need
 
 - A [Coralogix](https://coralogix.com/) account and the correct **region / API endpoint** for your team ([account domain](https://coralogix.com/docs/user-guides/account-management/account-settings/coralogix-domain/))
 - [Cursor](https://cursor.com/) with MCP enabled
-- The `CORALOGIX_DOMAIN` environment variable set to your account domain (see [Configuring your domain](#configuring-your-domain))
 
 ## How connection works
 
@@ -21,13 +29,9 @@ You typically authenticate in one of two ways:
 | Method | Notes |
 |--------|--------|
 | **OAuth (recommended)** | Browser login to Coralogix and authorize the MCP client. Cursor uses OAuth 2.1 / OIDC ([details](https://coralogix.com/docs/user-guides/mcp-server/oauth/)). |
-| **API key** | Personal [Coralogix API key](https://coralogix.com/docs/user-guides/account-management/api-keys/api-keys/) sent as `Authorization: Bearer …`. Permissions follow that key ([permissions](https://coralogix.com/docs/user-guides/mcp-server/permissions/)). |
+| **API key** | Personal [Coralogix API key](https://coralogix.com/docs/user-guides/account-management/api-keys/api-keys/) sent as `Authorization: Bearer …`. Choose it during `/cx-setup`, or run `/cx-config` to add or rotate one. Permissions follow that key ([permissions](https://coralogix.com/docs/user-guides/mcp-server/permissions/)). |
 
-The MCP URL is constructed from your Coralogix domain using the pattern `https://api.<your-domain>/mgmt/api/v1/mcp`. Set `CORALOGIX_DOMAIN` to your domain and the plugin resolves the correct endpoint automatically.
-
-## Configuring your domain
-
-The plugin uses the `CORALOGIX_DOMAIN` environment variable to build the MCP endpoint URL. Set it to the domain shown on your [Coralogix account settings](https://coralogix.com/docs/user-guides/account-management/account-settings/coralogix-domain/) page:
+The MCP URL follows the pattern `https://api.<your-domain>/mgmt/api/v1/mcp`. The `/cx-setup` skill writes the right URL into the plugin's `mcp.json` based on your region choice:
 
 | Domain | Region | Cloud |
 |--------|--------|-------|
@@ -39,22 +43,10 @@ The plugin uses the `CORALOGIX_DOMAIN` environment variable to build the MCP end
 | `ap1.coralogix.com` | AP1 | AWS ap-south-1 (Mumbai) |
 | `ap2.coralogix.com` | AP2 | AWS ap-southeast-1 (Singapore) |
 | `ap3.coralogix.com` | AP3 | AWS ap-southeast-3 (Jakarta) |
+| `proofpoint.coralogix.com` | Proofpoint | Dedicated tenant |
+| `factset.coralogix.com` | FactSet | Dedicated tenant |
 
-Add the variable to your shell profile (e.g. `~/.zshrc` or `~/.bashrc`) and restart Cursor:
-
-```bash
-export CORALOGIX_DOMAIN=eu2.coralogix.com
-```
-
-Cursor interpolates `${env:CORALOGIX_DOMAIN}` in the MCP URL at startup, so the server connects to `https://api.<CORALOGIX_DOMAIN>/mgmt/api/v1/mcp`.
-
-## Getting started
-
-1. Set `CORALOGIX_DOMAIN` for your region (see [Configuring your domain](#configuring-your-domain)).
-2. Install this plugin from the **Cursor Marketplace** — the MCP server is registered automatically.
-3. For OAuth, complete login in the browser when prompted.
-
-If you already registered the Coralogix MCP server manually, remove or rename that entry first to avoid Cursor connecting to it twice.
+A fresh install uses `${CORALOGIX_DOMAIN}` in the MCP URL; the server can connect if that variable is already set (shell or plugin settings). `/cx-setup` and `/cx-config` replace it with a literal hostname in the URL so region changes from chat are not overridden by your session. If you already registered the Coralogix MCP server manually in `~/.cursor/mcp.json`, remove or rename that entry first to avoid connecting twice.
 
 ## Using the MCP in Cursor
 
@@ -74,27 +66,28 @@ Which alerts fired in the last hour?
 
 After investigating an incident, you can continue with follow-ups such as summarizing impact or suggesting code fixes—the agent uses Coralogix tools when they are available.
 
+## Skills shipped with the plugin
+
+| Skill | Purpose |
+|-------|---------|
+| **`/cx-setup`** | First-time setup. Asks which Coralogix region you use and whether to authenticate via OAuth or an API key, then writes the matching config into the plugin's `mcp.json`. |
+| **`/cx-config`** | Change region later, switch between OAuth and API key, or rotate an API key. |
+
 ## Corporate proxy
 
 If outbound traffic must go through a proxy, set standard `HTTP_PROXY` / `HTTPS_PROXY` environment variables before starting Cursor; MCP clients typically honor them (see [Setup](https://coralogix.com/docs/user-guides/mcp-server/setup/)).
 
-## What’s included
-
-The plugin provides **default MCP registration** for Coralogix plus **rules and skills** so the agent prefers Coralogix MCP tools for observability questions instead of guessing.
-
 ## Local development
 
-To load the plugin directly into Cursor without publishing it, run:
+To load the plugin directly into Cursor without publishing it, copy the repo into Cursor's local plugin folder ([docs](https://cursor.com/docs/plugins#test-plugins-locally)):
 
 ```bash
-make dev [DOMAIN=<your-domain>]
+make dev
 ```
 
-This creates `~/.cursor/plugins/local/coralogix-mcp` pointing to `plugins/coralogix-mcp/` and registers `CORALOGIX_DOMAIN` with `launchctl setenv` so Cursor's GUI process picks it up. Then reload Cursor (`Cmd+Shift+P` → **Developer: Reload Window**) and check **Settings → Features → Model Context Protocol** — `coralogix-server` should appear with the resolved URL.
+This copies the repo to `~/.cursor/plugins/local/coralogix-mcp/`. Then reload Cursor (`Cmd+Shift+P` → **Developer: Reload Window**) and run `/cx-setup` in chat.
 
-To remove the local symlink: `make unlink`. To validate the plugin manifest: `make validate`.
-
-> **macOS note:** Shell profile exports (`~/.zshrc`) are not visible to apps launched from the Dock. `make dev` uses `launchctl setenv` to inject the variable into the GUI environment — this persists until you log out or explicitly unset it with `launchctl unsetenv CORALOGIX_DOMAIN`.
+To remove the local install: `make unlink`.
 
 ## Support and legal
 
