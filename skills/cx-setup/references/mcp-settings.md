@@ -74,18 +74,18 @@ Only a successful live MCP response counts as **working**.
 Used in step 3 above when the probe fails. Setup is **not** complete
 (**not-setup**) only when **both** are true:
 
-1. The registration file's domain default (between `:-` and `}` in the
-   Coralogix URL template) is still `not-setup`.
+1. The `Coralogix` URL still contains `${CORALOGIX_DOMAIN}` (region not
+   persisted as a literal hostname).
 2. `CORALOGIX_DOMAIN` is unset, empty, or not a valid Coralogix domain
    (see the region table; `*.coralogix.com` dedicated tenants count).
 
-If the file still has the `not-setup` default but `CORALOGIX_DOMAIN` is
-set to a valid domain, the user has configured the region outside the
-registration file — state is **not-working**, not **not-setup**. Suggest
-`/cx-config` (or completing `/cx-setup` to persist the domain in the
-file), not `/cx-setup` alone.
+If the URL still uses `${CORALOGIX_DOMAIN}` but `CORALOGIX_DOMAIN` is set
+to a valid domain in the environment, the server may work at runtime, but
+the registration file is not persisted — state is **not-working**, not
+**not-setup**. Suggest `/cx-config` (or `/cx-setup` to persist the domain
+in the file).
 
-If the file already contains a real domain default, state is
+If the URL already has a literal Coralogix hostname, state is
 **not-working** regardless of the environment variable.
 
 ### Effective domain (for `/cx-config` and troubleshooting)
@@ -93,9 +93,11 @@ If the file already contains a real domain default, state is
 When telling the user which region or domain the server uses, report the
 **effective** domain — the one Cursor actually connects with:
 
-1. If `CORALOGIX_DOMAIN` is set to a valid Coralogix domain, use that.
-2. Otherwise use the registration file's domain default from the URL
-   template (between `:-` and `}`).
+1. Read the hostname between `api.` and `/mgmt` in the registration file URL.
+2. If it is `${CORALOGIX_DOMAIN}`, use the variable's value (must be a valid
+   Coralogix domain).
+3. If it is a literal hostname, use it when valid.
+4. Otherwise the server is not configured.
 
 Describe the result in plain language (region name and domain). Do not
 mention environment variables or file internals to the user.
@@ -104,67 +106,36 @@ mention environment variables or file internals to the user.
 
 Both this reference file (`<plugin-root>/skills/cx-setup/references/mcp-settings.md`)
 and the MCP registration file (`<plugin-root>/mcp.json`) are located in
-`<plugin-root>`, the plugin's root directory. The registration file
-contains a URL with one shell-style template variable:
+`<plugin-root>`, the plugin's root directory.
+
+### URL forms
+
+**Unconfigured (fresh install).** The URL uses the variable; no `env`
+block:
 
 ```
-${CORALOGIX_DOMAIN:-<current domain>}
+"url": "https://api.${CORALOGIX_DOMAIN}/mgmt/api/v1/mcp"
 ```
 
-### Editing rule
-
-The variable has the form `${NAME:-default}`. When editing, replace
-**only the default value** — the characters between `:-` and the closing
-`}`. The `${`, the variable name `CORALOGIX_DOMAIN`, the `:-` separator,
-and the closing `}` must remain byte-for-byte identical. Everything
-outside the `${...}` — the `"url": "https://api.` prefix and the
-`/mgmt/api/v1/mcp"` path — also stays untouched.
-
-This matters: Cursor expands `${CORALOGIX_DOMAIN:-<default>}` at runtime
-to the value of the `CORALOGIX_DOMAIN` environment variable, falling
-back to `<default>` when the variable is unset. If you damage the
-`${...}` wrapper (drop the `${`, change the variable name, lose the
-`:-`, etc.), Cursor will use the literal string verbatim and the URL
-will not resolve.
-
-Examples:
-
-Replacing the default value:
+**Persisted (after `/cx-setup` or `/cx-config` region change).** Replace
+the variable with a literal hostname — do not keep `${CORALOGIX_DOMAIN}`:
 
 ```
-"url": "https://api.${CORALOGIX_DOMAIN:-not-setup}/mgmt/api/v1/mcp"
-              becomes
-"url": "https://api.${CORALOGIX_DOMAIN:-eu2.coralogix.com}/mgmt/api/v1/mcp"
+"url": "https://api.eu2.coralogix.com/mgmt/api/v1/mcp"
 ```
 
-Switching regions later (same rule):
+### Region editing rule
 
-```
-${CORALOGIX_DOMAIN:-eu2.coralogix.com}  →  ${CORALOGIX_DOMAIN:-us1.coralogix.com}
-```
+On `/cx-setup` or `/cx-config` **region** change:
 
-The valid final URL when `CORALOGIX_DOMAIN` is unset is, e.g.,
-`https://api.eu2.coralogix.com/mgmt/api/v1/mcp`. If after your edit the
-file still contains `not-setup`, or no longer contains `${CORALOGIX_DOMAIN:-`
-followed by a real domain followed by `}`, the edit is wrong — re-do it.
+- If the URL still contains `${CORALOGIX_DOMAIN}`, replace the entire
+  `url` value with the persisted form for the chosen domain.
+- If the URL already has a literal hostname, replace **only** the hostname
+  between `api.` and `/mgmt` (e.g. `eu2.coralogix.com` → `us1.coralogix.com`).
+  Keep `https://api.` and `/mgmt/api/v1/mcp` unchanged.
 
-### The `not-setup` sentinel
-
-A fresh installation has `not-setup` as the default domain:
-
-```
-${CORALOGIX_DOMAIN:-not-setup}
-```
-
-This value prevents the MCP server from connecting when no override is
-present (it resolves to an invalid hostname). It exists only before
-first-time setup and is replaced by `/cx-setup` with a real Coralogix
-domain. Once replaced, it never returns to `not-setup`.
-
-If `CORALOGIX_DOMAIN` is set to a valid domain while the file still
-shows `not-setup`, the server may already work at runtime, but the
-registration file is out of date — treat state as **not-working**, not
-**not-setup**, and persist the domain via `/cx-setup` or `/cx-config`.
+Keep any `headers` block unchanged. Do not add an `env` block for region.
+Do not change `env` for auth-only changes (OAuth ↔ API key, rotate key).
 
 ## Region-to-domain mapping
 

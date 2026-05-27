@@ -31,7 +31,10 @@ Read [references/mcp-settings.md](references/mcp-settings.md) before proceeding.
 
 Check the `Coralogix-state` (see `mcp-settings.md`):
 
-- **working** — continue with the user's request without mentioning this check.
+- **working** — if the user invoked `/cx-setup`, tell them without preamble
+  that the Coralogix MCP server is already set up and working; to change region
+  or authentication, run `/cx-config`; stop. If setup was only a prerequisite
+  for another request, continue with that request without mentioning this check.
 - **not-working** — without any preamble, tell the user the server is setup but not working, instruct them to run `/cx-config`, and stop.
 - **not-setup** — the server needs first-time setup. Do **not** attempt to gather data using a different approach. Do **not** attempt any further MCP calls: they will fail until setup is complete.
 
@@ -58,19 +61,10 @@ Follow these steps in order:
 
    Follow the "Stay on script" rule in `mcp-settings.md`. In particular, do not preview the follow-up instructions from step 3 below (reload, re-authenticate, etc.) — that step emits them verbatim at the right moment.
 
-2. **Apply the change.** In the registration file, replace the exact string `not-setup` with the resolved Coralogix domain. Follow the editing rule in `mcp-settings.md` — only change the default value.
-
-   Before:
-
-   ```
-   ${CORALOGIX_DOMAIN:-not-setup}
-   ```
-
-   After (example for eu2):
-
-   ```
-   ${CORALOGIX_DOMAIN:-eu2.coralogix.com}
-   ```
+2. **Apply the change.** Follow the region editing rule in `mcp-settings.md`:
+   replace the URL so it uses the literal hostname for the resolved domain
+   (example: `https://api.eu2.coralogix.com/mgmt/api/v1/mcp`). Remove
+   `${CORALOGIX_DOMAIN}` from the URL.
 
 3. **Tell the user** that the Coralogix MCP server has been initialized and to follow these steps:
 

@@ -35,8 +35,7 @@ Check the `Coralogix-state` (see `mcp-settings.md`):
 ### 1. Read the current config
 
 Silently read the registration file at `<plugin-root>/mcp.json` and
-determine the **effective** domain per `mcp-settings.md` (environment
-override if set, otherwise the file's domain default). Also note whether
+determine the **effective** domain per `mcp-settings.md`. Also note whether
 auth is OAuth (no `headers` block) or API key (`headers.Authorization`).
 Tell the user which Coralogix domain the server currently points at and
 which auth mode is in use, in plain language.
@@ -63,9 +62,7 @@ to offer:
 Edit `<plugin-root>/mcp.json` using the shapes and rules in
 `mcp-settings.md`:
 
-- **Region change** — follow the editing rule. Replace only the default
-  value between `:-` and `}`, e.g.
-  `${CORALOGIX_DOMAIN:-eu2.coralogix.com}  →  ${CORALOGIX_DOMAIN:-us1.coralogix.com}`.
+- **Region change** — follow the region editing rule in `mcp-settings.md`.
 - **Switch to API key** — write the API key shape from the
   "Registration file shapes" section, keeping the existing domain and
   substituting the pasted key for `<CORALOGIX_API_KEY>`.
@@ -94,9 +91,8 @@ Tell the user the configuration has been updated and instruct them to:
 
 `Coralogix` supports two authentication shapes in `mcp.json`.
 When applying step 3, write the file using one of the two shapes below.
-Keep the `${CORALOGIX_DOMAIN:-<domain>}` template intact per the
-editing rule in `mcp-settings.md`, and only ever modify the
-`Coralogix` entry.
+Use the persisted (literal) URL from `mcp-settings.md` for `<domain>`.
+Only ever modify the `Coralogix` entry.
 
 ### OAuth (default)
 
@@ -107,7 +103,7 @@ connection; no credentials are stored in the file.
 {
   "mcpServers": {
     "Coralogix": {
-      "url": "https://api.${CORALOGIX_DOMAIN:-<domain>}/mgmt/api/v1/mcp"
+      "url": "https://api.<domain>/mgmt/api/v1/mcp"
     }
   }
 }
@@ -125,7 +121,7 @@ empty bearer when the env var is unset.
 {
   "mcpServers": {
     "Coralogix": {
-      "url": "https://api.${CORALOGIX_DOMAIN:-<domain>}/mgmt/api/v1/mcp",
+      "url": "https://api.<domain>/mgmt/api/v1/mcp",
       "headers": {
         "Authorization": "Bearer <CORALOGIX_API_KEY>"
       }
