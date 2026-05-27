@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "coralogix-server": {
+    "Coralogix": {
       "url": "https://api.${CORALOGIX_DOMAIN:-not-setup}/mgmt/api/v1/mcp"
     }
   }

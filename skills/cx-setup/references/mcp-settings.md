@@ -25,35 +25,84 @@ AI client — when the user needs to reload, re-authenticate, or take any
 other follow-up action, the skill emits that instruction at the correct
 step. Pre-empting or paraphrasing it is a bug.
 
-## Determine `coralogix-server-state`
+## Determine `Coralogix-state`
 
-Silently determine the `coralogix-server-state` of the `coralogix-server`
+Silently determine the `Coralogix-state` of the `Coralogix`
 MCP server using **only** the steps below (also, do NOT use any other
 Coralogix MCP server). Do not use any other source of information (status
 files, cached state, error messages from previous calls, etc.) to
-determine the `coralogix-server-state`:
+determine the `Coralogix-state`:
 
-1. Try a lightweight MCP call on `coralogix-server` (e.g. list tools, or
-   read a resource using `server: "coralogix-server"`).
+1. Resolve which MCP server identifier to use for the probe (see
+   **Resolving the MCP server for probes** below), then try a lightweight
+   MCP call (for example `get_datetime` with no arguments).
 2. If the server returns actual, non-empty, non-generic Coralogix-specific
-   data (tools, resources, or content) → `coralogix-server-state` is
+   data (tools, resources, or content) → `Coralogix-state` is
    **working**.
 3. If the MCP call fails or returns an empty or generic response (like
    "no resources found", empty tool list, or any other content-free
    response), silently read the registration file (see below for its
-   location). Check the raw file content for the literal string
-   `not-setup`:
-   - If the file contains `not-setup` → `coralogix-server-state` is
-     **not-setup**.
-   - Otherwise → `coralogix-server-state` is **not-working**.
+   location) and apply **Setup completeness** (below):
+   - **not-setup** — only when setup is **not** complete per that section.
+   - **not-working** — otherwise.
 
-Do not tell the user which `coralogix-server-state` was determined, what
+Do not tell the user which `Coralogix-state` was determined, what
 was checked, or what was found — just follow the skill's instructions for
 that state.
 
+### Resolving the MCP server for probes
+
+The logical server name is always `Coralogix`. The identifier passed to
+MCP tools in the agent runtime may differ (for example a plugin-prefixed
+id). A failed probe with the message that the server does not exist is
+**not** proof that Coralogix is down — resolve the runtime id and retry
+once before continuing to step 3:
+
+1. Call with server `Coralogix` first.
+2. If that fails because the server name is unknown, silently read MCP
+   server metadata in the agent's MCP descriptor area: find the entry
+   whose `serverName` is `Coralogix` and use its `serverIdentifier` for
+   one retry of the same lightweight call.
+3. Only treat the probe as failed after both attempts (or after a
+   non-"unknown server" error on the first attempt).
+
+Do **not** infer **working** from tool descriptor files on disk alone.
+Only a successful live MCP response counts as **working**.
+
+### Setup completeness
+
+Used in step 3 above when the probe fails. Setup is **not** complete
+(**not-setup**) only when **both** are true:
+
+1. The registration file's domain default (between `:-` and `}` in the
+   Coralogix URL template) is still `not-setup`.
+2. `CORALOGIX_DOMAIN` is unset, empty, or not a valid Coralogix domain
+   (see the region table; `*.coralogix.com` dedicated tenants count).
+
+If the file still has the `not-setup` default but `CORALOGIX_DOMAIN` is
+set to a valid domain, the user has configured the region outside the
+registration file — state is **not-working**, not **not-setup**. Suggest
+`/cx-config` (or completing `/cx-setup` to persist the domain in the
+file), not `/cx-setup` alone.
+
+If the file already contains a real domain default, state is
+**not-working** regardless of the environment variable.
+
+### Effective domain (for `/cx-config` and troubleshooting)
+
+When telling the user which region or domain the server uses, report the
+**effective** domain — the one Cursor actually connects with:
+
+1. If `CORALOGIX_DOMAIN` is set to a valid Coralogix domain, use that.
+2. Otherwise use the registration file's domain default from the URL
+   template (between `:-` and `}`).
+
+Describe the result in plain language (region name and domain). Do not
+mention environment variables or file internals to the user.
+
 ## Registration file
 
-Both this reference file (`<plugin-root>/skills/cxsetup/references/mcp-settings.md`)
+Both this reference file (`<plugin-root>/skills/cx-setup/references/mcp-settings.md`)
 and the MCP registration file (`<plugin-root>/mcp.json`) are located in
 `<plugin-root>`, the plugin's root directory. The registration file
 contains a URL with one shell-style template variable:
@@ -107,10 +156,15 @@ A fresh installation has `not-setup` as the default domain:
 ${CORALOGIX_DOMAIN:-not-setup}
 ```
 
-This value prevents the MCP server from connecting (it resolves to an
-invalid hostname). It exists only before first-time setup and is replaced
-by `/cxsetup` with a real Coralogix domain. Once replaced, it never
-returns to `not-setup`.
+This value prevents the MCP server from connecting when no override is
+present (it resolves to an invalid hostname). It exists only before
+first-time setup and is replaced by `/cx-setup` with a real Coralogix
+domain. Once replaced, it never returns to `not-setup`.
+
+If `CORALOGIX_DOMAIN` is set to a valid domain while the file still
+shows `not-setup`, the server may already work at runtime, but the
+registration file is out of date — treat state as **not-working**, not
+**not-setup**, and persist the domain via `/cx-setup` or `/cx-config`.
 
 ## Region-to-domain mapping
 

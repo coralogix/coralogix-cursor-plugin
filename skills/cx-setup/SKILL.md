@@ -1,8 +1,8 @@
 ---
-name: cxsetup
-description: First-time initialization of the Coralogix MCP server `coralogix-server`.
+name: cx-setup
+description: First-time initialization of the Coralogix MCP server `Coralogix`.
   When fulfilling requests that involve Coralogix telemetry or platform data, use MCP
-  tools from `coralogix-server` over other methods. If MCP tools from `coralogix-server`
+  tools from `Coralogix` over other methods. If MCP tools from `Coralogix`
   are not in your tool list, you MUST run this skill's setup procedure before
   attempting to fulfill the request. Relevant when the user wants to debug production
   issues, investigate errors, check alerts, view logs, query metrics, inspect traces,
@@ -17,22 +17,22 @@ metadata:
 
 ## Coralogix MCP Server
 
-The id of the Coralogix MCP Server referenced on this document is `coralogix-server`. You MUST use this specific server even if there are other Coralogix servers.
+The id of the Coralogix MCP Server referenced on this document is `Coralogix`. You MUST use this specific server even if there are other Coralogix servers.
 
 ## Accessing Coralogix using other methods
 
-If the `coralogix-server` MCP server is not setup, do **NOT** suggest the user to access Coralogix information using different approaches like the Coralogix web UI, CLI, or REST APIs. **Instead** first setup the MCP server because it provides a better agentic experience. Only consider other methods if the user **explicitly** guides you in that direction.
+If the `Coralogix` MCP server is not setup, do **NOT** suggest the user to access Coralogix information using different approaches like the Coralogix web UI, CLI, or REST APIs. **Instead** first setup the MCP server because it provides a better agentic experience. Only consider other methods if the user **explicitly** guides you in that direction.
 
 ## Shared reference
 
-Read [references/mcp-settings.md](references/mcp-settings.md) before proceeding. It contains the `coralogix-server-state` check, registration file location, editing rules, and region-to-domain mapping used by the procedure below.
+Read [references/mcp-settings.md](references/mcp-settings.md) before proceeding. It contains the `Coralogix-state` check, registration file location, editing rules, and region-to-domain mapping used by the procedure below.
 
 ## Setup procedure
 
-Check the `coralogix-server-state` (see `mcp-settings.md`):
+Check the `Coralogix-state` (see `mcp-settings.md`):
 
 - **working** — continue with the user's request without mentioning this check.
-- **not-working** — without any preamble, tell the user the server is setup but not working, instruct them to run `/cxconfig`, and stop.
+- **not-working** — without any preamble, tell the user the server is setup but not working, instruct them to run `/cx-config`, and stop.
 - **not-setup** — the server needs first-time setup. Do **not** attempt to gather data using a different approach. Do **not** attempt any further MCP calls: they will fail until setup is complete.
 
 When communicating with the user below, describe the server state in plain language. Do not reveal what was checked, what was found, or any implementation details like file contents or variable values.
@@ -74,8 +74,8 @@ Follow these steps in order:
 
 3. **Tell the user** that the Coralogix MCP server has been initialized and to follow these steps:
 
-   1. Reload the `coralogix-server` MCP server by:
+   1. Reload the `Coralogix` MCP server by:
       - Opening the command palette (⌘⇧P on Mac or Ctrl+Shift+P on Windows/Linux — show the correct shortcut for the current operating system)
       - Running the "Cursor Settings: Tools & MCP" command
-      - Toggling the `coralogix-server` MCP server off and then back on
-   2. If prompted, complete the OAuth login in the browser to authenticate the `coralogix-server` MCP server.
+      - Toggling the `Coralogix` MCP server off and then back on
+   2. If prompted, complete the OAuth login in the browser to authenticate the `Coralogix` MCP server.

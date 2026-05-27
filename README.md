@@ -9,11 +9,11 @@ Full setup, authentication options, and regional endpoints are documented here:
 ## Quick start
 
 1. Install the plugin from the [Cursor Marketplace](https://cursor.com/marketplace) (or copy this repo to `~/.cursor/plugins/local/coralogix-mcp/` for local testing — see [Local development](#local-development)).
-2. In Cursor chat, run **`/cxsetup`**. It will ask which Coralogix region you use and which authentication method to use (**OAuth** — the default — or **API key**), then configure the MCP server for you.
+2. In Cursor chat, run **`/cx-setup`**. It will ask which Coralogix region you use and which authentication method to use (**OAuth** — the default — or **API key**), then configure the MCP server for you.
 3. Fully quit and reopen Cursor.
 4. For OAuth, complete the browser login when prompted.
 
-To change the region, switch between OAuth and API key, or rotate an API key later, run **`/cxconfig`**.
+To change the region, switch between OAuth and API key, or rotate an API key later, run **`/cx-config`**.
 
 ## What you need
 
@@ -29,9 +29,9 @@ You typically authenticate in one of two ways:
 | Method | Notes |
 |--------|--------|
 | **OAuth (recommended)** | Browser login to Coralogix and authorize the MCP client. Cursor uses OAuth 2.1 / OIDC ([details](https://coralogix.com/docs/user-guides/mcp-server/oauth/)). |
-| **API key** | Personal [Coralogix API key](https://coralogix.com/docs/user-guides/account-management/api-keys/api-keys/) sent as `Authorization: Bearer …`. Choose it during `/cxsetup`, or run `/cxconfig` to add or rotate one. Permissions follow that key ([permissions](https://coralogix.com/docs/user-guides/mcp-server/permissions/)). |
+| **API key** | Personal [Coralogix API key](https://coralogix.com/docs/user-guides/account-management/api-keys/api-keys/) sent as `Authorization: Bearer …`. Choose it during `/cx-setup`, or run `/cx-config` to add or rotate one. Permissions follow that key ([permissions](https://coralogix.com/docs/user-guides/mcp-server/permissions/)). |
 
-The MCP URL follows the pattern `https://api.<your-domain>/mgmt/api/v1/mcp`. The `/cxsetup` skill writes the right URL into the plugin's `mcp.json` based on your region choice:
+The MCP URL follows the pattern `https://api.<your-domain>/mgmt/api/v1/mcp`. The `/cx-setup` skill writes the right URL into the plugin's `mcp.json` based on your region choice:
 
 | Domain | Region | Cloud |
 |--------|--------|-------|
@@ -46,7 +46,7 @@ The MCP URL follows the pattern `https://api.<your-domain>/mgmt/api/v1/mcp`. The
 | `proofpoint.coralogix.com` | Proofpoint | Dedicated tenant |
 | `factset.coralogix.com` | FactSet | Dedicated tenant |
 
-Until you run `/cxsetup`, the domain in `mcp.json` is the placeholder `not-setup` and the server will not connect. If you already registered the Coralogix MCP server manually in `~/.cursor/mcp.json`, remove or rename that entry first to avoid connecting twice.
+Until you run `/cx-setup`, the domain in `mcp.json` is the placeholder `not-setup` and the server will not connect. If you already registered the Coralogix MCP server manually in `~/.cursor/mcp.json`, remove or rename that entry first to avoid connecting twice.
 
 ## Using the MCP in Cursor
 
@@ -70,8 +70,8 @@ After investigating an incident, you can continue with follow-ups such as summar
 
 | Skill | Purpose |
 |-------|---------|
-| **`/cxsetup`** | First-time setup. Asks which Coralogix region you use and whether to authenticate via OAuth or an API key, then writes the matching config into the plugin's `mcp.json`. |
-| **`/cxconfig`** | Change region later, switch between OAuth and API key, or rotate an API key. |
+| **`/cx-setup`** | First-time setup. Asks which Coralogix region you use and whether to authenticate via OAuth or an API key, then writes the matching config into the plugin's `mcp.json`. |
+| **`/cx-config`** | Change region later, switch between OAuth and API key, or rotate an API key. |
 
 ## Corporate proxy
 
@@ -85,7 +85,7 @@ To load the plugin directly into Cursor without publishing it, copy the repo int
 make dev
 ```
 
-This copies the repo to `~/.cursor/plugins/local/coralogix-mcp/`. Then reload Cursor (`Cmd+Shift+P` → **Developer: Reload Window**) and run `/cxsetup` in chat.
+This copies the repo to `~/.cursor/plugins/local/coralogix-mcp/`. Then reload Cursor (`Cmd+Shift+P` → **Developer: Reload Window**) and run `/cx-setup` in chat.
 
 To remove the local install: `make unlink`.
 

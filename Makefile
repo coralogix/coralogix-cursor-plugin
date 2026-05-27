@@ -8,7 +8,7 @@ PLUGIN_DEST      := $(PLUGIN_LOCAL_DIR)/$(PLUGIN_NAME)
 # ── Local development ──────────────────────────────────────────────────────────
 
 ## Copy the plugin into Cursor's local plugins folder for testing.
-## After running, reload Cursor and run /cxsetup in chat to pick your region.
+## After running, reload Cursor and run /cx-setup in chat to pick your region.
 dev:
 	@mkdir -p "$(PLUGIN_LOCAL_DIR)"
 	@rm -rf "$(PLUGIN_DEST)"
@@ -23,7 +23,7 @@ dev:
 	@echo ""
 	@echo "Next:"
 	@echo "  1. Reload Cursor (Cmd+Shift+P -> Developer: Reload Window)"
-	@echo "  2. In chat, run: /cxsetup    (picks your Coralogix region)"
+	@echo "  2. In chat, run: /cx-setup    (picks your Coralogix region)"
 
 ## Remove the local plugin install.
 unlink:
