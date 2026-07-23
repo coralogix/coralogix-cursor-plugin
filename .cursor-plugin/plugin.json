@@ -33,9 +33,7 @@
           "us3.coralogix.com",
           "ap1.coralogix.com",
           "ap2.coralogix.com",
-          "ap3.coralogix.com",
-          "proofpoint.coralogix.com",
-          "factset.coralogix.com"
+          "ap3.coralogix.com"
         ]
       }
     },

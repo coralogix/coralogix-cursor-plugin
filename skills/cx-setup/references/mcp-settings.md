@@ -152,8 +152,6 @@ domains:
 | ap1        | ap1.coralogix.com        | AWS ap-south-1 (Mumbai)              |
 | ap2        | ap2.coralogix.com        | AWS ap-southeast-1 (Singapore)       |
 | ap3        | ap3.coralogix.com        | AWS ap-southeast-3 (Jakarta)         |
-| proofpoint | proofpoint.coralogix.com | Dedicated tenant                     |
-| factset    | factset.coralogix.com    | Dedicated tenant                     |
 
 Present the region options to the user using a single method — for
 example, don't combine a text list with an interactive picker. Choose
