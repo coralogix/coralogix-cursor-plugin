@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Official Coralogix Cursor plugin for the remote Coralogix Observability MCP. Connect with OAuth or an API key to query logs, metrics, traces, and RUM; manage alerts, dashboards, and platform settings from Cursor.",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "plugins": [
     {

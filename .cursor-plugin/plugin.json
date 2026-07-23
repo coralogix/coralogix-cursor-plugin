@@ -1,6 +1,6 @@
 {
   "name": "coralogix-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Connects Cursor to the Coralogix Observability MCP Server, letting your AI agent query logs, metrics, traces, and RUM, manage alerts and dashboards — all without leaving the editor.",
   "author": {
     "name": "Coralogix LTD",
