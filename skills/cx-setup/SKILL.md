@@ -12,7 +12,7 @@ allowed-tools: Read
 license: Apache-2.0
 metadata:
   author: Coralogix LTD
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 ## Coralogix MCP Server
