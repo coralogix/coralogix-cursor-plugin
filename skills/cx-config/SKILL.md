@@ -36,7 +36,7 @@ Check the `Coralogix-state` (see `mcp-settings.md`):
 
 Silently read the registration file at `<plugin-root>/mcp.json` and
 determine the **effective** domain per `mcp-settings.md`. Also note whether
-auth is OAuth (no `headers` block) or API key (`headers.Authorization`).
+auth is OAuth (no `headers.Authorization`) or API key (`headers.Authorization`).
 Tell the user which Coralogix domain the server currently points at and
 which auth mode is in use, in plain language.
 
@@ -52,10 +52,10 @@ to offer:
   `mcp-settings.md` — accept the pasted key silently and never echo it
   back.
 - **Replace the API key.** Only offer this when the current config
-  already has a `headers` block. Replaces the existing `Bearer` value
+  already has a `headers.Authorization` value. Replaces the existing `Bearer` value
   with a newly pasted key. Follow the same credentials rule — accept
   the pasted key silently and never echo it back.
-- **Switch to OAuth auth.** Removes the `headers` block.
+- **Switch to OAuth auth.** Removes the `Authorization` header.
 
 ### 3. Apply the change
 
@@ -65,11 +65,11 @@ Edit `<plugin-root>/mcp.json` using the shapes and rules in
 - **Region change** — follow the region editing rule in `mcp-settings.md`.
 - **Switch to API key** — write the API key shape from the
   "Registration file shapes" section, keeping the existing domain and
-  substituting the pasted key for `<CORALOGIX_API_KEY>`.
+  toolsets header and substituting the pasted key for `<CORALOGIX_API_KEY>`.
 - **Replace API key** — keep the existing API key shape and domain;
   only substitute the pasted key for the current `Bearer` value.
-- **Switch to OAuth** — write the OAuth shape (no `headers` block),
-  keeping the existing domain.
+- **Switch to OAuth** — remove only the `Authorization` header, keeping
+  the existing domain and toolsets header.
 
 Only touch the `Coralogix` entry; do not modify other servers.
 
@@ -96,14 +96,18 @@ Only ever modify the `Coralogix` entry.
 
 ### OAuth (default)
 
-No `headers` block. Cursor handles the browser login flow on first
-connection; no credentials are stored in the file.
+No `Authorization` header. Cursor handles the browser login flow on first
+connection; no credentials are stored in the file. Keep the `mcp-toolsets`
+header unchanged.
 
 ```json
 {
   "mcpServers": {
     "Coralogix": {
-      "url": "https://api.<domain>/mgmt/api/v1/mcp"
+      "url": "https://api.<domain>/mgmt/api/v1/mcp",
+      "headers": {
+        "mcp-toolsets": "${CORALOGIX_MCP_TOOLSETS}"
+      }
     }
   }
 }
@@ -111,7 +115,8 @@ connection; no credentials are stored in the file.
 
 ### API key (Bearer)
 
-`headers` block with an `Authorization: Bearer …` value. Substitute the
+`headers` block with an `Authorization: Bearer …` value and the existing
+`mcp-toolsets` value. Substitute the
 pasted key for `<CORALOGIX_API_KEY>` — write it straight into the file
 and never echo, summarize, or confirm the value back. Do **not** use
 `${CORALOGIX_API_KEY:-}` with an empty default; that silently sends an
@@ -123,6 +128,7 @@ empty bearer when the env var is unset.
     "Coralogix": {
       "url": "https://api.<domain>/mgmt/api/v1/mcp",
       "headers": {
+        "mcp-toolsets": "${CORALOGIX_MCP_TOOLSETS}",
         "Authorization": "Bearer <CORALOGIX_API_KEY>"
       }
     }
@@ -130,6 +136,6 @@ empty bearer when the env var is unset.
 }
 ```
 
-To switch from OAuth to API key, add the `headers` block. To switch
-back, delete the entire `headers` block. The domain stays unchanged
-unless the user is also changing region.
+To switch from OAuth to API key, add the `Authorization` header. To switch
+back, delete only the `Authorization` header. The domain and `mcp-toolsets`
+header stay unchanged unless the user is also changing region.

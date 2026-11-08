@@ -110,11 +110,14 @@ and the MCP registration file (`<plugin-root>/mcp.json`) are located in
 
 ### URL forms
 
-**Unconfigured (fresh install).** The URL uses the variable; no `env`
-block:
+**Unconfigured (fresh install).** The URL uses the variable and the
+toolsets header uses the plugin setting:
 
 ```
-"url": "https://api.${CORALOGIX_DOMAIN}/mgmt/api/v1/mcp"
+"url": "https://api.${CORALOGIX_DOMAIN}/mgmt/api/v1/mcp",
+"headers": {
+  "mcp-toolsets": "${CORALOGIX_MCP_TOOLSETS}"
+}
 ```
 
 **Persisted (after `/cx-setup` or `/cx-config` region change).** Replace
@@ -136,6 +139,16 @@ On `/cx-setup` or `/cx-config` **region** change:
 
 Keep any `headers` block unchanged. Do not add an `env` block for region.
 Do not change `env` for auth-only changes (OAuth ↔ API key, rotate key).
+
+### Toolsets header
+
+The registration file always contains a `headers.mcp-toolsets` value sourced
+from the plugin setting. This header limits the MCP server to the requested
+comma-separated product toolsets; `core` is always included by the server.
+
+When changing authentication, preserve `headers.mcp-toolsets`. Treat only
+`headers.Authorization` as the API-key authentication marker. OAuth removes
+that authorization value but retains the toolsets header.
 
 ## Region-to-domain mapping
 
