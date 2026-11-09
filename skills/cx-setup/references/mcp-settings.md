@@ -145,6 +145,7 @@ Do not change `env` for auth-only changes (OAuth ↔ API key, rotate key).
 The registration file always contains a `headers.mcp-toolsets` value sourced
 from the plugin setting. This header limits the MCP server to the requested
 comma-separated product toolsets; `core` is always included by the server.
+An empty value enables all toolsets.
 
 When changing authentication, preserve `headers.mcp-toolsets`. Treat only
 `headers.Authorization` as the API-key authentication marker. OAuth removes
