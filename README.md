@@ -64,6 +64,14 @@ Which alerts fired in the last hour?
 
 After investigating an incident, you can continue with follow-ups such as summarizing impact or suggesting code fixes—the agent uses Coralogix tools when they are available.
 
+## Limiting available tools
+
+The optional **Coralogix MCP Toolsets** plugin setting limits the tools loaded
+into Cursor. Leave it empty (the default) to load all tools, or enter a
+comma-separated list of toolsets. See the
+[Coralogix MCP tool catalog](https://coralogix.com/docs/user-guides/mcp-server/tools/catalog/)
+for the current available tools and product areas.
+
 ## Skills shipped with the plugin
 
 | Skill | Purpose |

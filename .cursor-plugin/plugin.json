@@ -1,6 +1,6 @@
 {
   "name": "coralogix-mcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Connects Cursor to the Coralogix Observability MCP Server, letting your AI agent query logs, metrics, traces, and RUM, manage alerts and dashboards — all without leaving the editor.",
   "author": {
     "name": "Coralogix LTD",
@@ -35,6 +35,12 @@
           "ap2.coralogix.com",
           "ap3.coralogix.com"
         ]
+      },
+      "CORALOGIX_MCP_TOOLSETS": {
+        "type": "string",
+        "title": "Coralogix MCP Toolsets",
+        "description": "Optional comma-separated toolsets to enable. Leave empty to load all tools. See the [Coralogix MCP tool catalog](https://coralogix.com/docs/user-guides/mcp-server/tools/catalog/) for available toolsets.",
+        "default": ""
       }
     },
     "required": [
