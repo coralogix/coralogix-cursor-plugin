@@ -39,7 +39,7 @@
       "CORALOGIX_MCP_TOOLSETS": {
         "type": "string",
         "title": "Coralogix MCP Toolsets",
-        "description": "Optional comma-separated toolsets to enable. Leave empty to load all tools. See the [Coralogix MCP tool catalog](https://coralogix.com/docs/user-guides/mcp-server/tools/catalog/) for available toolsets.",
+        "description": "Optional comma-separated toolsets to enable. Leave empty to load all tools. See [Choosing toolsets](https://coralogix.com/docs/user-guides/mcp-server/setup/#choosing-toolsets) for available toolsets.",
         "default": ""
       }
     },
